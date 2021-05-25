@@ -18,7 +18,7 @@ a basic item class.
 
 Item classes in this folder are automatically loaded by Helix when the server starts up.
 
-## Item bases
+## Item Bases
 If many items share the same functionality (i.e a can of soda and a bottle of water can both be consumed), then you might want
 to consider using an item base to reduce the amount of duplication for these items. Item bases are defined the same way as
 regular item classes, but they are placed in the `items/base/` folder in your schema or plugin. For example, a `consumables`
