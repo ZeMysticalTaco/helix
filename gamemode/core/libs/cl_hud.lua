@@ -1,11 +1,19 @@
 
+--- The hud drawing library.
+-- @module ix.hud
+
+
 ix.hud = {}
+
 
 local owner, w, h, ceil, ft, clmp
 ceil = math.ceil
 clmp = math.Clamp
 local aprg, aprg2 = 0, 0
 
+--- Draws the 'YOU ARE DEAD' notice when dead.
+-- @realm client
+-- @internal
 function ix.hud.DrawDeath()
 	owner = LocalPlayer()
 	ft = FrameTime()
@@ -41,6 +49,9 @@ function ix.hud.DrawDeath()
 	)
 end
 
+--- A function to draw the item pickup animation.
+-- @realm client
+-- @internal
 function ix.hud.DrawItemPickup()
 	local pickupTime = ix.config.Get("itemPickupTime", 0.5)
 
@@ -73,6 +84,65 @@ function ix.hud.DrawItemPickup()
 		ix.util.DrawArc(x, y, radius, thickness, startAngle, endAngle, 2, color)
 	end
 end
+
+
+--[[-- Populates an `ixTooltip` with data from an `Item`.
+ It's strongly advised that if you need to overwrite `ixTooltip` in any way, you use the `PopulateItemTooltip` hook instead.
+ ##Potential use cases
+ @realm client
+ @internal
+ @tparam panel tooltip The `ixTooltip` to call the population for.
+ @item item The item that it will generate the tooltip from.
+ @see ix.chat.classes
+ @see Plugin.PopulateItemTooltip
+ @see ixTooltip
+ @usage
+ if CLIENT then
+	 	concommand.Add('ix_DemoTooltip', function()
+	    local function GenerateItem(dMainPanel)
+	        local item = table.Random(ix.item.list)
+	        dMainPanel.icon:SetModel(item.model)
+	        dMainPanel.icon:SetSize(64 * item.width, 64 * item.height)
+
+	        --SetHelixTooltip is used to assign the SpawnIcon[dMainPanel.icon] the tooltip.
+	        dMainPanel.icon:SetHelixTooltip(function(tooltip)
+	            ix.hud.PopulateItemTooltip(tooltip, item)
+	        end)
+
+	        dMainPanel.icon:Center()
+	        dMainPanel.nextSwitch = CurTime() + 1
+	        dMainPanel.icon.Think = function() 
+	            if dMainPanel.nextSwitch < CurTime() then
+	                GenerateItem(dMainPanel)
+				end
+	        end
+	    end
+	
+	        if IsValid(xccc) then xccc:Remove() end
+	        local dMainPanel = vgui.Create('DFrame')
+	        dMainPanel:SetSize(640, 480)
+	        dMainPanel:Center()
+	        dMainPanel:MakePopup()
+	
+	        dMainPanel.icon = dMainPanel:Add('SpawnIcon')
+	        dMainPanel.icon:Center()
+	        dMainPanel.icon:SetSize()
+	        GenerateItem(dMainPanel)
+
+
+
+	        dMainPanel.PaintOver = function()
+	            surface.SetTextColor(color_white)
+	            surface.SetFont('ixMenuButtonFont')
+	            surface.SetTextPos(640 * 0.35, 480 * 0.35)
+	            surface.DrawText('Hover over me!')
+	            draw.DrawText('Hover over me!', 'DebugFixed', 640, 480, color_white, TEXT_ALIGN_CENTER)
+	        end
+	    end)
+    
+end
+
+]]
 
 function ix.hud.PopulateItemTooltip(tooltip, item)
 	local name = tooltip:AddRow("name")

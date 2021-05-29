@@ -1,15 +1,55 @@
 --[[--
 Item manipulation and helper functions.
+
+This is the Library, `ix.item`. You might be looking for the Class, `Item`.
+
+Most things in here are internal functions, and should only be modified if you are overhauling the ways items are handled.
+
+You might be here for:
+`ix.item.instances`, the table used to store `Item`s loaded into memory.
+`ix.item.Register`, the function used to register `ItemStructure`s
 ]]
 -- @module ix.item
 
 ix.item = ix.item or {}
+
+//TODO ix.item.list
+--- The core item list, `ix.item.list` contains every `Item` registered in memory.
+-- This is **not** how you access items players possess, you might be looking for `ix.item.instances`.
+-- Ideally you shouldn't modify items after they have been created, 
+-- @realm shared
+-- @table ix.item.list
 ix.item.list = ix.item.list or {}
+
+//TODO ix.item.base
+--- The container for all currently registered `Item bases`
+-- @realm shared
+-- @table ix.item.base
 ix.item.base = ix.item.base or {}
+
+// TODO ix.item.instances
+
+--[[-- 
+The core container for all currently active `Item` Instances in memory.
+Items on their own, don't exist as tangible objects for players.
+They exist in instances as existing under a table simply named `ix.item.instances`.
+A more complete explanation can be found in `Item`.
+
+Item Instances in this table follow the `Item` Class.
+]]
+-- @realm shared
+-- @table ix.item.instances
 ix.item.instances = ix.item.instances or {}
+
+// TODO ix.item.inventories
+--- The container
+-- @realm shared
+-- @table ix.item.inventories
 ix.item.inventories = ix.item.inventories or {
 	[0] = {}
 }
+
+// TODO ix.item.inventoryTypes
 ix.item.inventoryTypes = ix.item.inventoryTypes or {}
 
 ix.util.Include("helix/gamemode/core/meta/sh_item.lua")
@@ -56,6 +96,22 @@ function zeroInv:Add(uniqueID, quantity, data, x, y)
 	end
 end
 
+--- Registers an `Item` and inserts it into an `Inventory`.
+-- This function uses mysql as a primary component of it, as a result, it does not return the item it generates.
+-- Instead, i
+-- @realm server
+-- @internal
+-- @number index The `Inventory` to insert the item into.
+-- @string uniqueID The Unique ID of the item.
+-- @tab itemData The generated `Item`'s data.
+-- @number x The inventory x.
+-- @number y THe inventory y.
+-- @func callback Callback function
+-- @number characterID the Character
+-- @number playerID the palyer
+-- @usage
+-- -- Generates an `Item` with a uniqueID of 30, a ca
+-- > "item[example][0]"
 function ix.item.Instance(index, uniqueID, itemData, x, y, callback, characterID, playerID)
 	if (!uniqueID or ix.item.list[uniqueID]) then
 		local query = mysql:Insert("ix_items")
@@ -97,9 +153,9 @@ function ix.item.Instance(index, uniqueID, itemData, x, y, callback, characterID
 	end
 end
 
---- Retrieves an item table.
+--- Retrieves an `ItemStructure`.
 -- @realm shared
--- @string identifier Unique ID of the item
+-- @string identifier UniqueID of the `Item`, you a
 -- @treturn item Item table
 -- @usage print(ix.item.Get("example"))
 -- > "item[example][0]"
@@ -107,6 +163,13 @@ function ix.item.Get(identifier)
 	return ix.item.base[identifier] or ix.item.list[identifier]
 end
 
+--- Loads an item from the filesystem into the `Item` Index.
+-- This does **not** load an item from the Database, you might be looking for `ix.item.LoadItemByID`.
+-- @realm shared
+-- @internal
+-- @string path The path to the file.
+-- @string baseID The base the item will use.
+-- @bool isBaseItem[opt=false] Whether or not this item is intended to be used as a base.
 function ix.item.Load(path, baseID, isBaseItem)
 	local uniqueID = path:match("sh_([_%w]+)%.lua")
 
@@ -120,6 +183,22 @@ function ix.item.Load(path, baseID, isBaseItem)
 	end
 end
 
+
+--- Registers an `Item` into `ix.item.list`.
+-- This does **not** create an `Item` for `Character`s to use. This registers them to be created for that purpose.
+-- This function is useful for generating non-saving, temporary items on the fly, in combination with
+-- Used internally by `ix.item.Load` to generate items.
+-- @realm shared
+-- @internal
+-- @string uniqueID
+-- @string baseID[opt=base]
+-- @bool isBaseItem[opt=false]
+-- @string path[opt=nil]
+-- @bool luaGenerated
+-- @treturn[1] Item that was generated, if luaGenerated was `true`.
+-- @treturn[2] `nil` otherwise.
+-- @see ix.item.Load
+-- @see ix.item.LoadFromDir
 function ix.item.Register(uniqueID, baseID, isBaseItem, path, luaGenerated)
 	local meta = ix.meta.item
 
@@ -253,6 +332,9 @@ function ix.item.Register(uniqueID, baseID, isBaseItem, path, luaGenerated)
 	end
 end
 
+--- Loads a directory of items.
+-- @realm shared
+-- @string directory The path to the directory.
 function ix.item.LoadFromDir(directory)
 	local files, folders
 
@@ -279,6 +361,12 @@ function ix.item.LoadFromDir(directory)
 	end
 end
 
+
+--- Creates a new empty `Item` with the bare minimum needed to function.
+-- @realm server
+-- @internal
+-- @string uniqueID The uniqueID of the item.
+-- @number id The id of the item you're trying to create.
 function ix.item.New(uniqueID, id)
 	if (ix.item.instances[id] and ix.item.instances[id].uniqueID == uniqueID) then
 		return ix.item.instances[id]
@@ -294,7 +382,7 @@ function ix.item.New(uniqueID, id)
 		})
 
 		ix.item.instances[id] = item
-
+		PrintTable(item)
 		return item
 	else
 		ErrorNoHalt("[Helix] Attempt to index unknown item '"..uniqueID.."'\n")
@@ -544,6 +632,12 @@ do
 		util.AddNetworkString("ixInventoryData")
 		util.AddNetworkString("ixInventoryAction")
 
+		--- Loads a `Item` into ix.item.instances by the specified `itemIndex`
+		-- Despite being marked as internal, this never actually is used.
+		-- @realm server
+		-- @internal
+		-- @number itemIndex The `Item`'s index to load.
+		-- @tab recipientFilter Seems to be unused, could be a CRecipientFilter?
 		function ix.item.LoadItemByID(itemIndex, recipientFilter)
 			local query = mysql:Select("ix_items")
 				query:Select("item_id")
@@ -575,7 +669,7 @@ do
 				end)
 			query:Execute()
 		end
-
+		// TODO ix.item.PerformInventoryAction
 		function ix.item.PerformInventoryAction(client, action, item, invID, data)
 			local character = client:GetCharacter()
 
@@ -718,8 +812,9 @@ do
 							local inventory2 = ix.item.inventories[newInvID]
 
 							if (inventory2) then
+								print('Starting Transfer...')
 								local bStatus, error = item:Transfer(newInvID, x, y, client)
-
+								print('Transfer Complete! Status: ', bStatus, error)
 								if (!bStatus) then
 									NetworkInventoryMove(
 										client, item.invID, item:GetID(), item.gridX, item.gridY, item.gridX, item.gridY

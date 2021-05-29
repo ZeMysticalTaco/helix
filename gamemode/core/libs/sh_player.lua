@@ -1,8 +1,25 @@
+--SECTION[epic=docs,seq=2] libs/sh_player
+
 local playerMeta = FindMetaTable("Player")
 
--- ixData information for the player.
+
+
+
+
 do
 	if (SERVER) then
+	
+
+		--- Player Data Library Extensions
+		-- @classmod Player
+
+		--- Returns a data field set on this player. If it doesn't exist, it will return the given default or `nil`. 
+		-- This is only valid on the server and the client that has the data.
+		-- @realm shared
+		-- @string key Name of the field that's holding the data
+		-- @param default Value to return if the given key doesn't exist, or is `nil`
+		-- @return[1] Data stored in the field
+		-- @treturn[2] nil If the data doesn't exist, or is `nil`
 		function playerMeta:GetData(key, default)
 			if (key == true) then
 				return self.ixData
@@ -39,8 +56,14 @@ do
 	end
 end
 
--- Whitelist networking information here.
+--Whitelist networking information here.
 do
+	--- Whether or not a player has the specified whitelist.
+	-- @realm shared
+	-- @number faction The faction ID to check for.
+	-- @treturn bool Whether or not the player has the whitelist.
+	-- @usage print(Entity(1):HasWhitelist(FACTION_MPF))
+	-- > true
 	function playerMeta:HasWhitelist(faction)
 		local data = ix.faction.indices[faction]
 
@@ -57,6 +80,15 @@ do
 		return false
 	end
 
+	--- Returns the `Item`s the` Player`'s `Character` posesses.
+	-- @realm shared
+	-- @treturn[1] table The `Item`s the `Player` has.
+	-- @treturn[2] nil If the player does not have a character loaded, or does not have an inventory.
+	-- @usage for client in ix.util.GetCharacters do
+	-- 	print(client:GetItems())
+	-- end
+	-- > table: 0x32d18c88
+	-- -- Uses ix.util.GetCharacters to loop through all players who currently have a character loaded, and prints the memory reference to their items. Use `PrintTable` if you want to see the full list yourself.
 	function playerMeta:GetItems()
 		local char = self:GetCharacter()
 

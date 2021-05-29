@@ -385,6 +385,22 @@ do
 		i = 0
 		return iterator, player.GetAll()
 	end
+
+	//NOTE char:GetPlayer() seems to do a lot of extra validation, investigate why.
+	--- Returns a player based on the `Character` ID provided.
+	-- Useful if you're storing only Character ID's as references.
+	-- This is equivalent to calling 
+	-- @realm shared
+	-- @number id The `Character` ID to request the player from.
+	-- @treturn[1] Player The player, if they are on the server.
+	-- @treturn[2] bool `false` if the player is not on the server or the character provided isn't valid.
+	-- @usage print(ix.util.GetPlayerFromCharacterID(32)
+	function ix.util.GetPlayerFromCharacterID(id)
+		if ix.char.loaded[id] and IsValid(ix.char.loaded[id].player) then
+			return ix.char.loaded[id].player
+		end
+		return false
+	end
 end
 
 if (CLIENT) then

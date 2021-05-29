@@ -1,13 +1,31 @@
 
+--[[--
+Attributes, or stat points for characters.
+
+Helix comes with out of the box support for a easy to understand attribute system.
+Attributes are created in Schemas or Plugins by simply having an `./attributes` directory in your files.
+
+Attributes, like items, if they do not have a `uniqueID` assigned to them manually they will have one assigned
+with the characters in between `sh_` and `.lua`.
+
+Attributes follow an `Attribute Structure` which 
+]]
 -- @module ix.attributes
+
+
 
 if (!ix.char) then
 	include("sh_character.lua")
 end
 
+
 ix.attributes = ix.attributes or {}
 ix.attributes.list = ix.attributes.list or {}
 
+--- Loads attributes from related `attributes` folders.
+-- @realm shared
+-- @internal
+-- @string directory The directory to parse attribute files from.
 function ix.attributes.LoadFromDir(directory)
 	for _, v in ipairs(file.Find(directory.."/*.lua", "LUA")) do
 		local niceName = v:sub(4, -5)
@@ -189,3 +207,7 @@ do
 		return att
 	end
 end
+--- The Attribute Structure is a relatively simple structure, though beware, depending on the plugin it may be different
+-- As PLUGINs can define their own
+-- @realm shared
+-- @table AttributeStructure
