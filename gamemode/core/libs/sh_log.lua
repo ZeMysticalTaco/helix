@@ -59,14 +59,6 @@ if (SERVER) then
 		ix.log.types[logType] = {format = format, flag = flag}
 	end
 
-	--- Parses a log of the specified type.
-	-- @realm server
-	-- @internal
-	-- @player client The client triggering the log.
-	-- @string logType The log type to Parse.
-	-- @param ... The varargs to format the log with.
-	-- @treturn string The formatted text.
-	-- @treturn flag The flagType stored in `logType`'s table.
 	function ix.log.Parse(client, logType, ...)
 		local info = ix.log.types[logType]
 
@@ -88,12 +80,6 @@ if (SERVER) then
 		return text, info.flag
 	end
 
-	--- Adds an unregistered log message.
-	-- For log messages you are using often, it's cleaner, and easier to register your log types in the system.
-	-- This is useful on it's own because logs added with `AddRaw` save to the logs folder.
-	-- @realm server
-	-- @string logString The string to print out.
-	-- @bool bNoSave Whether or not to save the log to the logs folder.
 	function ix.log.AddRaw(logString, bNoSave)
 		CAMI.GetPlayersWithAccess("Helix - Logs", function(receivers)
 			ix.log.Send(receivers, logString)
@@ -121,7 +107,7 @@ if (SERVER) then
 
 		Msg("[LOG] ", logString .. "\n")
 
-		ix.log.CallHandler("Write", client, logString, logFlag)
+		ix.log.CallHandler("Write", client, logString, logFlag, logType, {...})
 	end
 
 	function ix.log.Send(client, logString, flag)

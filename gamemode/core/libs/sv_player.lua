@@ -1,11 +1,5 @@
 local playerMeta = FindMetaTable("Player")
 
-//SECTION[epic=docs] libs/sv_player
-//LINK ./sv_player.lua
-
---- Server Player Data Extensions
--- @classmod Player
-
 -- Player data (outside of characters) handling.
 do
 	util.AddNetworkString("ixData")
@@ -64,12 +58,7 @@ do
 			query:Where("steamid", steamID64)
 		query:Execute()
 	end
-	
-	--- Sets a data field on this character. This is useful for storing small bits of data that you need persisted on
-	-- the client. This is networked only to the client. 
-	-- @realm server
-	-- @string key Name of the field that holds the data
-	-- @param value Any value to store in the field, as long as it's supported by GMod's JSON parser
+
 	function playerMeta:SetData(key, value, bNoNetworking)
 		self.ixData = self.ixData or {}
 		self.ixData[key] = value

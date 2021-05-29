@@ -1,15 +1,4 @@
 
---[[-- 
-A relatively lightweight and simple way of conveying necessary information.
-
-	Bars are one of the primary HUD elements, the `ix.bar` library controls two things.
-
-	
-	First, The HUD bars, at the top left of the screen, which by default convey your health, armor and stamina`[stm]`, if the plugin is installed.
-	Second, the `Action Bar` which is a 
-]]
--- @module ix.bar
-
 ix.bar = ix.bar or {}
 ix.bar.list = {}
 ix.bar.delta = ix.bar.delta or {}
@@ -18,20 +7,9 @@ ix.bar.actionStart = 0
 ix.bar.actionEnd = 0
 ix.bar.totalHeight = 0
 
-
-//TODO bars
-
 -- luacheck: globals BAR_HEIGHT
-
---- The bar height, in pixels. **This is a hardcoded value** you will always be better off changing things in Plugins.
--- @realm client
--- @number BAR_HEIGHT
 BAR_HEIGHT = 10
 
---- Returns the bar requested with `identifier`.
--- @realm client
--- @string identifier the Bar's uniqueID..
--- @treturn table The bar's `BarStructure`
 function ix.bar.Get(identifier)
 	for _, v in ipairs(ix.bar.list) do
 		if (v.identifier == identifier) then
@@ -40,24 +18,15 @@ function ix.bar.Get(identifier)
 	end
 end
 
---- Removes a bar with the matching `identifier`
--- @realm client
--- @string identifier The identifier for the bar.
--- @usage
--- -- Removes the health bar.
---InitializedPlugins runs after Helix has initialized it's libraries, which allows us to remove the bar.
--- hook.Add('InitializedPlugins', 'ix.RemoveHealthBar', function()
---	ix.bar.Remove('health')
---end)
 function ix.bar.Remove(identifier)
 	local bar = ix.bar.Get(identifier)
 
 	if (bar) then
+		table.remove(ix.bar.list, bar.index)
+
 		if (IsValid(ix.gui.bars)) then
 			ix.gui.bars:RemoveBar(bar.panel)
 		end
-
-		table.remove(ix.bar.list, bar.index)
 	end
 end
 
@@ -150,17 +119,3 @@ net.Receive("ixActionBarReset", function()
 	ix.bar.actionEnd = 0
 	ix.bar.actionText = ""
 end)
-
---[[
-			index = index,
-		color = color,
-		priority = priority,
-		GetValue = getValue,
-		identifier = identifier, ars) and ix.gui.bars:AddBar(index, color, priority)
-]]
-
-//TODO BarStructure
---- BarStructure
--- @realm client
--- @param[type=number] The index of the struct.
--- @table BarStructure

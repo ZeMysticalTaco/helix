@@ -3,9 +3,6 @@
 
 -- used for prominent text entries
 DEFINE_BASECLASS("DTextEntry")
---- Alternative to DTextEntry that follows the Helix theme.
--- The only difference between this, and [DTextEntry](https://wiki.facepunch.com/gmod/DTextEntry) is that this is automatically themed more towards Helix.
--- @panel ixTextEntry
 local PANEL = {}
 
 AccessorFunc(PANEL, "backgroundColor", "BackgroundColor")
@@ -72,19 +69,9 @@ end
 
 vgui.Register("ixCategoryPanel", PANEL, "EditablePanel")
 
---- segmented progress bar
--- @panel ixSegmentedProgress
+-- segmented progress bar
 PANEL = {}
 
---- Sets the text for this label to display.
--- @realm client
--- @string text Text to display
--- @function SetText
-
---- Returns the current text for this panel.
--- @realm client
--- @treturn string Current text
--- @function GetText
 AccessorFunc(PANEL, "font", "Font", FORCE_STRING)
 AccessorFunc(PANEL, "barColor", "BarColor")
 AccessorFunc(PANEL, "textColor", "TextColor")
@@ -918,18 +905,6 @@ function PANEL:SetIcon(newIcon)
 	self:DockMargin(self.iconWidth + 2, 0, 0, 8)
 end
 
-function PANEL:GetIcon()
-	return self.icon or "V"
-end
-
-function PANEL:SizeToContents()
-	BaseClass.SizeToContents(self)
-	local height = self:GetTall()
-	if height < self.iconHeight then
-		self:SetTall(height + (self.iconHeight - height))
-	end
-end
-
 function PANEL:Paint(width, height)
 	BaseClass.Paint(self, width, height)
 
@@ -941,7 +916,7 @@ function PANEL:Paint(width, height)
 		surface.SetFont("ixSmallTitleIcons")
 		surface.SetTextColor(self.iconColor)
 		surface.SetTextPos(-self.iconWidth, 0)
-		surface.DrawText(self:GetIcon())
+		surface.DrawText("V")
 	DisableClipping(false)
 end
 

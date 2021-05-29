@@ -638,7 +638,7 @@ if (SERVER) then
 						if (self.OnTransferred) then
 							self:OnTransferred(curInv, inventory)
 						end
-						print(ix.plugin.list['wwg_equipment']:OnItemTransferred(self, curInv, inventory))
+
 						hook.Run("OnItemTransferred", self, curInv, inventory)
 						return true
 					elseif (self.invID > 0 and prevID == 0) then
